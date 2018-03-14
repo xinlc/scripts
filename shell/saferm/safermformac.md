@@ -5,7 +5,7 @@
 ```bash
 cd ~
 
-wget https://raw.githubusercontent.com/xinlc/scripts/master/shell/safermformac.sh
+wget https://raw.githubusercontent.com/xinlc/scripts/master/shell/saferm/safermformac.sh
 ```
 
 ## 配置

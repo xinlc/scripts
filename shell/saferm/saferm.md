@@ -5,7 +5,7 @@
 ```bash
 cd /bin
  
-wget https://raw.githubusercontent.com/xinlc/scripts/master/shell/saferm.sh
+wget https://raw.githubusercontent.com/xinlc/scripts/master/shell/saferm/saferm.sh
  
 chmod +x saferm.sh
 ```

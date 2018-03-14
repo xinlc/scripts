@@ -5,7 +5,7 @@
 ```bash
 cd ~
 
-wget https://raw.githubusercontent.com/xinlc/scripts/master/shell/saferm2.sh
+wget https://raw.githubusercontent.com/xinlc/scripts/master/shell//saferm/saferm2.sh
 ```
 
 ## 配置
