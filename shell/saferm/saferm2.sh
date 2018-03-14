@@ -1,5 +1,5 @@
 #!/bin/bash  
-trash_dir="~/.Trash"  
+trash_dir="/Users/lichao/.Trash"  
 date=`date "+%Y%m%d"`  
 mkdir -p ${trash_dir}/${date}  
 for i in $*  

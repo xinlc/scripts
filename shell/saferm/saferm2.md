@@ -1,11 +1,11 @@
-## 给 “rm” 命令添加个“垃圾桶”
+## 给 macOS “rm” 命令添加个“垃圾桶"
 
 ## 下载
  
 ```bash
 cd ~
- 
-wget https://raw.githubusercontent.com/xinlc/scripts/master/sheel/saferm2.sh
+
+wget https://raw.githubusercontent.com/xinlc/scripts/master/shell/saferm2.sh
 ```
 
 ## 配置
