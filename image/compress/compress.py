@@ -7,7 +7,7 @@ from PIL import Image
 import os
 from glob import glob
  
-fpath = "/Users/leo/Documents/chengdu/"
+fpath = "/Users/leo/Documents/huashan/"
 # fpath = "/Users/leo/Documents/pppppppppppppp/"
 
 size = (950, 950)   # 定义要调整成为的尺寸（PIL会自动根据原始图片的长宽比来缩放适应设置的尺寸）
