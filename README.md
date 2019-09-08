@@ -1,7 +1,7 @@
 
 # Some useful scripts
 
-* [backup](./backup/README.md)
+* [backup](./backup/backup/README.md)
 * [safe rm](./shell/saferm/safermformac.md)
 * [kill](./shell/kill/README.md)
 * [vpn](./net/vpn/README.md)
