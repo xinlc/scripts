@@ -1,5 +1,12 @@
-work_path=$(cd "$(dirname "$0")"; pwd)
-project_path=$(cd "$work_path"; cd ../; pwd)
+work_path=$(
+  cd "$(dirname "$0")"
+  pwd
+)
+project_path=$(
+  cd "$work_path"
+  cd ../
+  pwd
+)
 
 npm run build:prod
 

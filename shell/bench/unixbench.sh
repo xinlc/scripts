@@ -9,8 +9,8 @@ cur_dir=/opt/unixbench
 # Check System
 [[ $EUID -ne 0 ]] && echo 'Error: This script must be run as root!' && exit 1
 [[ -f /etc/redhat-release ]] && os='centos'
-[[ ! -z "`egrep -i debian /etc/issue`" ]] && os='debian'
-[[ ! -z "`egrep -i ubuntu /etc/issue`" ]] && os='ubuntu'
+[[ ! -z "$(egrep -i debian /etc/issue)" ]] && os='debian'
+[[ ! -z "$(egrep -i ubuntu /etc/issue)" ]] && os='ubuntu'
 [[ "$os" == '' ]] && echo 'Error: Your system is not supported to run it!' && exit 1
 
 # Install necessary libaries

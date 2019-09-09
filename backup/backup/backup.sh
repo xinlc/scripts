@@ -3,7 +3,7 @@
 ALL=$1
 
 TIME=$(date +%F-%H-%M-%S)
-PASSWD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1)
+PASSWD=$(tr -cd '[:alnum:]' </dev/urandom | fold -w30 | head -n1)
 
 CONF_FILE="$(dirname "$0")/backup.conf"
 
@@ -39,7 +39,7 @@ cd tmp || exit -1
 
 # remove old backup files
 
-if [ ! "$(find "$TARGET_DIR" -name \*.zip |wc -l)" == 0 ]; then
+if [ ! "$(find "$TARGET_DIR" -name \*.zip | wc -l)" == 0 ]; then
     rm "$TARGET_DIR"/*.zip
 fi
 
@@ -55,8 +55,7 @@ mv "backup_files.zip" "$TARGET_DIR/backup-$TIME-backup_files.zip"
 
 # backup dirs
 
-for dir in "${DIRS[@]}"
-do
+for dir in "${DIRS[@]}"; do
     target="${dir//\//_}"
     target="${target:1}"
 
@@ -72,7 +71,7 @@ do
             $ZIP -r --symlinks "$target.zip" "$dir" -x@"$dir/exclude.lst"
         fi
         mv "$target.zip" "$TARGET_DIR/backup-$TIME-$target.zip"
-    else 
+    else
         echo "$(date) --> $dir not exist." | tee -a "$LOG_FILE"
     fi
 done
@@ -83,7 +82,7 @@ if [ "$BACKUP_MYSQL" == "true" ]; then
 
     echo "$(date) --> backup: mysql" | tee -a "$LOG_FILE"
 
-    mysqldump --all-databases > mysql.sql
+    mysqldump --all-databases >mysql.sql
     $ZIP mysql.zip mysql.sql
     rm mysql.sql
 

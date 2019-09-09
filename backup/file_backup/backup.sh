@@ -11,7 +11,7 @@ OldWeb=Web_$(date -d -5day +"%Y%m%d").tar.gz
 rm -rf /tmp/backup/Web_$(date -d -3day +"%Y%m%d").tar.gz
 cd /tmp/backup
 tar zcf $WebBakName --exclude=website/wget-log $WEB_DATA
-ftp -v -n -p  << END
+ftp -v -n -p <<END
 open $FTP_IP $FTP_PORT
 user $FTP_USER $FTP_PASS
 type binary

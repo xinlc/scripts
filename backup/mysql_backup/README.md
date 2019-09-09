@@ -41,6 +41,25 @@ mysql>
 user db1;
 source db1.sql;
 
+# 常用
+# 导出数据库
+/usr/bin/mysqldump -u root -ppwd database > database20191001.sql
+# 导入数据库
+mysql -u root -p database < database20191001.sql
+
+#备份到压缩文件
+/usr/bin/mysqldump -u root -ppwd database  | gzip > database20191001.sql.gz
+#从压缩文件导入
+gzip < database20191001.sql.gz | mysql -u root -p database
+
+
+# 备份开启新logs
+# 参数 —flush-logs：使用一个新的日志文件来记录接下来的日志；
+# 参数 —lock-all-tables：锁定所有数据库;
+# 对于InnoDB将--lock-all-tables替换为--single-transaction
+/usr/bin/mysqldump -uroot -p123456  --lock-all-tables --flush-logs test > /home/backup.sql
+
+
 ```
 ## crontab
 

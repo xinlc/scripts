@@ -7,57 +7,57 @@ export PATH
 #   Author: Teddysun <i@teddysun.com>                                   #
 #   Intro:  https://teddysun.com/448.html                               #
 #=======================================================================#
-cur_dir=`pwd`
+cur_dir=$(pwd)
 
 libreswan_filename="libreswan-3.20"
 download_root_url="http://dl.teddysun.com/files"
 
-rootness(){
+rootness() {
     if [[ $EUID -ne 0 ]]; then
-       echo "Error:This script must be run as root!" 1>&2
-       exit 1
+        echo "Error:This script must be run as root!" 1>&2
+        exit 1
     fi
 }
 
-tunavailable(){
+tunavailable() {
     if [[ ! -e /dev/net/tun ]]; then
         echo "Error:TUN/TAP is not available!" 1>&2
         exit 1
     fi
 }
 
-disable_selinux(){
-if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
-    sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-    setenforce 0
-fi
+disable_selinux() {
+    if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
+        sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+        setenforce 0
+    fi
 }
 
-get_opsy(){
+get_opsy() {
     [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
     [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
     [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
 }
 
-get_os_info(){
-    IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+get_os_info() {
+    IP=$(ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1)
+    [ -z ${IP} ] && IP=$(wget -qO- -t1 -T2 ipv4.icanhazip.com)
 
-    local cname=$( awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
-    local cores=$( awk -F: '/model name/ {core++} END {print core}' /proc/cpuinfo )
-    local freq=$( awk -F: '/cpu MHz/ {freq=$2} END {print freq}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//' )
-    local tram=$( free -m | awk '/Mem/ {print $2}' )
-    local swap=$( free -m | awk '/Swap/ {print $2}' )
-    local up=$( awk '{a=$1/86400;b=($1%86400)/3600;c=($1%3600)/60;d=$1%60} {printf("%ddays, %d:%d:%d\n",a,b,c,d)}' /proc/uptime )
-    local load=$( w | head -1 | awk -F'load average:' '{print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//' )
-    local opsy=$( get_opsy )
-    local arch=$( uname -m )
-    local lbit=$( getconf LONG_BIT )
-    local host=$( hostname )
-    local kern=$( uname -r )
+    local cname=$(awk -F: '/model name/ {name=$2} END {print name}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//')
+    local cores=$(awk -F: '/model name/ {core++} END {print core}' /proc/cpuinfo)
+    local freq=$(awk -F: '/cpu MHz/ {freq=$2} END {print freq}' /proc/cpuinfo | sed 's/^[ \t]*//;s/[ \t]*$//')
+    local tram=$(free -m | awk '/Mem/ {print $2}')
+    local swap=$(free -m | awk '/Swap/ {print $2}')
+    local up=$(awk '{a=$1/86400;b=($1%86400)/3600;c=($1%3600)/60;d=$1%60} {printf("%ddays, %d:%d:%d\n",a,b,c,d)}' /proc/uptime)
+    local load=$(w | head -1 | awk -F'load average:' '{print $2}' | sed 's/^[ \t]*//;s/[ \t]*$//')
+    local opsy=$(get_opsy)
+    local arch=$(uname -m)
+    local lbit=$(getconf LONG_BIT)
+    local host=$(hostname)
+    local kern=$(uname -r)
 
     echo "########## System Information ##########"
-    echo 
+    echo
     echo "CPU model            : ${cname}"
     echo "Number of cores      : ${cores}"
     echo "CPU frequency        : ${freq} MHz"
@@ -70,11 +70,11 @@ get_os_info(){
     echo "Kernel               : ${kern}"
     echo "Hostname             : ${host}"
     echo "IPv4 address         : ${IP}"
-    echo 
+    echo
     echo "########################################"
 }
 
-check_sys(){
+check_sys() {
     local checkType=$1
     local value=$2
 
@@ -105,13 +105,13 @@ check_sys(){
     fi
 
     if [[ ${checkType} == "sysRelease" ]]; then
-        if [ "$value" == "$release" ];then
+        if [ "$value" == "$release" ]; then
             return 0
         else
             return 1
         fi
     elif [[ ${checkType} == "packageManager" ]]; then
-        if [ "$value" == "$systemPackage" ];then
+        if [ "$value" == "$systemPackage" ]; then
             return 0
         else
             return 1
@@ -119,25 +119,34 @@ check_sys(){
     fi
 }
 
-rand(){
+rand() {
     index=0
     str=""
-    for i in {a..z}; do arr[index]=${i}; index=`expr ${index} + 1`; done
-    for i in {A..Z}; do arr[index]=${i}; index=`expr ${index} + 1`; done
-    for i in {0..9}; do arr[index]=${i}; index=`expr ${index} + 1`; done
-    for i in {1..10}; do str="$str${arr[$RANDOM%$index]}"; done
+    for i in {a..z}; do
+        arr[index]=${i}
+        index=$(expr ${index} + 1)
+    done
+    for i in {A..Z}; do
+        arr[index]=${i}
+        index=$(expr ${index} + 1)
+    done
+    for i in {0..9}; do
+        arr[index]=${i}
+        index=$(expr ${index} + 1)
+    done
+    for i in {1..10}; do str="$str${arr[$RANDOM % $index]}"; done
     echo ${str}
 }
 
-is_64bit(){
-    if [ `getconf WORD_BIT` = '32' ] && [ `getconf LONG_BIT` = '64' ] ; then
+is_64bit() {
+    if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]; then
         return 0
     else
         return 1
     fi
 }
 
-download_file(){
+download_file() {
     if [ -s ${1} ]; then
         echo "$1 [found]"
     else
@@ -149,20 +158,20 @@ download_file(){
     fi
 }
 
-versionget(){
-    if [[ -s /etc/redhat-release ]];then
-        grep -oE  "[0-9.]+" /etc/redhat-release
+versionget() {
+    if [[ -s /etc/redhat-release ]]; then
+        grep -oE "[0-9.]+" /etc/redhat-release
     else
-        grep -oE  "[0-9.]+" /etc/issue
+        grep -oE "[0-9.]+" /etc/issue
     fi
 }
 
-centosversion(){
-    if check_sys sysRelease centos;then
+centosversion() {
+    if check_sys sysRelease centos; then
         local code=${1}
-        local version="`versionget`"
+        local version="$(versionget)"
         local main_ver=${version%%.*}
-        if [ "${main_ver}" == "${code}" ];then
+        if [ "${main_ver}" == "${code}" ]; then
             return 0
         else
             return 1
@@ -172,12 +181,12 @@ centosversion(){
     fi
 }
 
-debianversion(){
-    if check_sys sysRelease debian;then
-        local version=$( get_opsy )
+debianversion() {
+    if check_sys sysRelease debian; then
+        local version=$(get_opsy)
         local code=${1}
-        local main_ver=$( echo ${version} | sed 's/[^0-9]//g')
-        if [ "${main_ver}" == "${code}" ];then
+        local main_ver=$(echo ${version} | sed 's/[^0-9]//g')
+        if [ "${main_ver}" == "${code}" ]; then
             return 0
         else
             return 1
@@ -187,7 +196,7 @@ debianversion(){
     fi
 }
 
-version_check(){
+version_check() {
     if check_sys packageManager yum; then
         if centosversion 5; then
             echo "Error: CentOS 5 is not supported, Please re-install OS and try again."
@@ -196,17 +205,17 @@ version_check(){
     fi
 }
 
-get_char(){
-    SAVEDSTTY=`stty -g`
+get_char() {
+    SAVEDSTTY=$(stty -g)
     stty -echo
     stty cbreak
-    dd if=/dev/tty bs=1 count=1 2> /dev/null
+    dd if=/dev/tty bs=1 count=1 2>/dev/null
     stty -raw
     stty echo
     stty $SAVEDSTTY
 }
 
-preinstall_l2tp(){
+preinstall_l2tp() {
 
     echo
     if [ -d "/proc/vz" ]; then
@@ -234,7 +243,7 @@ preinstall_l2tp(){
     read -p "(Default Username: teddysun):" username
     [ -z ${username} ] && username="teddysun"
 
-    password=`rand`
+    password=$(rand)
     echo "Please enter ${username}'s password:"
     read -p "(Default Password: ${password}):" tmppassword
     [ ! -z ${tmppassword} ] && password=${tmppassword}
@@ -246,11 +255,11 @@ preinstall_l2tp(){
     echo "PSK:${mypsk}"
     echo
     echo "Press any key to start... or press Ctrl + C to cancel."
-    char=`get_char`
+    char=$(get_char)
 
 }
 
-install_l2tp(){
+install_l2tp() {
 
     mknod /dev/random c 1 9
 
@@ -295,11 +304,11 @@ install_l2tp(){
             dpkg -i ${libnss3_filename1} ${libnss3_filename2} ${libnss3_filename3} ${libnss3_filename4} ${libnss3_filename5}
 
             apt-get -y install wget gcc ppp flex bison make pkg-config libpam0g-dev libcap-ng-dev iptables \
-                               libcap-ng-utils libunbound-dev libevent-dev libcurl4-nss-dev libsystemd-daemon-dev
+                libcap-ng-utils libunbound-dev libevent-dev libcurl4-nss-dev libsystemd-daemon-dev
         else
             apt-get -y install wget gcc ppp flex bison make python libnss3-dev libnss3-tools libselinux-dev iptables \
-                               libnspr4-dev pkg-config libpam0g-dev libcap-ng-dev libcap-ng-utils libunbound-dev \
-                               libevent-dev libcurl4-nss-dev libsystemd-dev
+                libnspr4-dev pkg-config libpam0g-dev libcap-ng-dev libcap-ng-utils libunbound-dev \
+                libevent-dev libcurl4-nss-dev libsystemd-dev
         fi
         apt-get -y --no-install-recommends install xmlto
         apt-get -y install xl2tpd
@@ -319,9 +328,9 @@ install_l2tp(){
             yum -y remove libevent-devel
             yum -y install libevent2-devel
             yum -y install nss-devel nspr-devel pkgconfig pam-devel \
-                           libcap-ng-devel libselinux-devel lsof \
-                           curl-devel flex bison gcc ppp make iptables gmp-devel \
-                           fipscheck-devel unbound-devel xmlto libpcap-devel xl2tpd
+                libcap-ng-devel libselinux-devel lsof \
+                curl-devel flex bison gcc ppp make iptables gmp-devel \
+                fipscheck-devel unbound-devel xmlto libpcap-devel xl2tpd
 
             compile_install
         fi
@@ -329,9 +338,9 @@ install_l2tp(){
 
 }
 
-config_install(){
+config_install() {
 
-    cat > /etc/ipsec.conf<<EOF
+    cat >/etc/ipsec.conf <<EOF
 version 2.0
 
 config setup
@@ -365,11 +374,11 @@ conn l2tp-psk-nonat
     sha2-truncbug=yes
 EOF
 
-    cat > /etc/ipsec.secrets<<EOF
+    cat >/etc/ipsec.secrets <<EOF
 %any %any : PSK "${mypsk}"
 EOF
 
-    cat > /etc/xl2tpd/xl2tpd.conf<<EOF
+    cat >/etc/xl2tpd/xl2tpd.conf <<EOF
 [global]
 port = 1701
 
@@ -385,7 +394,7 @@ pppoptfile = /etc/ppp/options.xl2tpd
 length bit = yes
 EOF
 
-    cat > /etc/ppp/options.xl2tpd<<EOF
+    cat >/etc/ppp/options.xl2tpd <<EOF
 ipcp-accept-local
 ipcp-accept-remote
 require-mschap-v2
@@ -404,7 +413,7 @@ connect-delay 5000
 EOF
 
     rm -f /etc/ppp/chap-secrets
-    cat > /etc/ppp/chap-secrets<<EOF
+    cat >/etc/ppp/chap-secrets <<EOF
 # Secrets for authentication using CHAP
 # client    server    secret    IP addresses
 ${username}    l2tpd    ${password}       *
@@ -412,7 +421,7 @@ EOF
 
 }
 
-compile_install(){
+compile_install() {
 
     rm -rf ${cur_dir}/l2tp
     mkdir -p ${cur_dir}/l2tp
@@ -421,7 +430,7 @@ compile_install(){
     tar -zxf ${libreswan_filename}.tar.gz
 
     cd ${cur_dir}/l2tp/${libreswan_filename}
-    echo "WERROR_CFLAGS =" > Makefile.inc.local
+    echo "WERROR_CFLAGS =" >Makefile.inc.local
     make programs && make install
 
     /usr/local/sbin/ipsec --version >/dev/null 2>&1
@@ -436,19 +445,19 @@ compile_install(){
 
     sed -i 's/net.ipv4.ip_forward = 0/net.ipv4.ip_forward = 1/g' /etc/sysctl.conf
 
-    for each in `ls /proc/sys/net/ipv4/conf/`; do
-        echo "net.ipv4.conf.${each}.accept_source_route=0" >> /etc/sysctl.conf
-        echo "net.ipv4.conf.${each}.accept_redirects=0" >> /etc/sysctl.conf
-        echo "net.ipv4.conf.${each}.send_redirects=0" >> /etc/sysctl.conf
-        echo "net.ipv4.conf.${each}.rp_filter=0" >> /etc/sysctl.conf
+    for each in $(ls /proc/sys/net/ipv4/conf/); do
+        echo "net.ipv4.conf.${each}.accept_source_route=0" >>/etc/sysctl.conf
+        echo "net.ipv4.conf.${each}.accept_redirects=0" >>/etc/sysctl.conf
+        echo "net.ipv4.conf.${each}.send_redirects=0" >>/etc/sysctl.conf
+        echo "net.ipv4.conf.${each}.rp_filter=0" >>/etc/sysctl.conf
     done
     sysctl -p
 
     if centosversion 6; then
-        [ -f /etc/sysconfig/iptables ] && cp -pf /etc/sysconfig/iptables /etc/sysconfig/iptables.old.`date +%Y%m%d`
+        [ -f /etc/sysconfig/iptables ] && cp -pf /etc/sysconfig/iptables /etc/sysconfig/iptables.old.$(date +%Y%m%d)
 
-        if [ "`iptables -L -n | grep -c '\-\-'`" == "0" ]; then
-            cat > /etc/sysconfig/iptables <<EOF
+        if [ "$(iptables -L -n | grep -c '\-\-')" == "0" ]; then
+            cat >/etc/sysconfig/iptables <<EOF
 # Added by L2TP VPN script
 *filter
 :INPUT ACCEPT [0:0]
@@ -472,15 +481,15 @@ EOF
         else
             iptables -I INPUT -p udp -m multiport --dports 500,4500,1701 -j ACCEPT
             iptables -I FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
-            iptables -I FORWARD -s ${iprange}.0/24  -j ACCEPT
+            iptables -I FORWARD -s ${iprange}.0/24 -j ACCEPT
             iptables -t nat -A POSTROUTING -s ${iprange}.0/24 -j SNAT --to-source ${IP}
             /etc/init.d/iptables save
         fi
 
         if [ ! -f /etc/ipsec.d/cert9.db ]; then
-           echo > /var/tmp/libreswan-nss-pwd
-           certutil -N -f /var/tmp/libreswan-nss-pwd -d /etc/ipsec.d
-           rm -f /var/tmp/libreswan-nss-pwd
+            echo >/var/tmp/libreswan-nss-pwd
+            certutil -N -f /var/tmp/libreswan-nss-pwd -d /etc/ipsec.d
+            rm -f /var/tmp/libreswan-nss-pwd
         fi
 
         chkconfig --add iptables
@@ -495,10 +504,10 @@ EOF
         /etc/init.d/xl2tpd start
 
     else
-        [ -f /etc/iptables.rules ] && cp -pf /etc/iptables.rules /etc/iptables.rules.old.`date +%Y%m%d`
+        [ -f /etc/iptables.rules ] && cp -pf /etc/iptables.rules /etc/iptables.rules.old.$(date +%Y%m%d)
 
-        if [ "`iptables -L -n | grep -c '\-\-'`" == "0" ]; then
-            cat > /etc/iptables.rules <<EOF
+        if [ "$(iptables -L -n | grep -c '\-\-')" == "0" ]; then
+            cat >/etc/iptables.rules <<EOF
 # Added by L2TP VPN script
 *filter
 :INPUT ACCEPT [0:0]
@@ -522,28 +531,28 @@ EOF
         else
             iptables -I INPUT -p udp -m multiport --dports 500,4500,1701 -j ACCEPT
             iptables -I FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
-            iptables -I FORWARD -s ${iprange}.0/24  -j ACCEPT
+            iptables -I FORWARD -s ${iprange}.0/24 -j ACCEPT
             iptables -t nat -A POSTROUTING -s ${iprange}.0/24 -j SNAT --to-source ${IP}
-            /sbin/iptables-save > /etc/iptables.rules
+            /sbin/iptables-save >/etc/iptables.rules
         fi
 
-        cat > /etc/network/if-up.d/iptables <<EOF
+        cat >/etc/network/if-up.d/iptables <<EOF
 #!/bin/sh
 /sbin/iptables-restore < /etc/iptables.rules
 EOF
         chmod +x /etc/network/if-up.d/iptables
 
         if [ ! -f /etc/ipsec.d/cert9.db ]; then
-           echo > /var/tmp/libreswan-nss-pwd
-           certutil -N -f /var/tmp/libreswan-nss-pwd -d /etc/ipsec.d
-           rm -f /var/tmp/libreswan-nss-pwd
+            echo >/var/tmp/libreswan-nss-pwd
+            certutil -N -f /var/tmp/libreswan-nss-pwd -d /etc/ipsec.d
+            rm -f /var/tmp/libreswan-nss-pwd
         fi
 
         update-rc.d -f xl2tpd defaults
 
-        cp -f /etc/rc.local /etc/rc.local.old.`date +%Y%m%d`
+        cp -f /etc/rc.local /etc/rc.local.old.$(date +%Y%m%d)
         sed --follow-symlinks -i -e '/^exit 0/d' /etc/rc.local
-        cat >> /etc/rc.local <<EOF
+        cat >>/etc/rc.local <<EOF
 
 # Added by L2TP VPN script
 echo 1 > /proc/sys/net/ipv4/ip_forward
@@ -551,9 +560,9 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 exit 0
 EOF
         chmod +x /etc/rc.local
-        echo 1 > /proc/sys/net/ipv4/ip_forward
+        echo 1 >/proc/sys/net/ipv4/ip_forward
 
-        /sbin/iptables-restore < /etc/iptables.rules
+        /sbin/iptables-restore </etc/iptables.rules
         /usr/sbin/service ipsec start
         /usr/sbin/service xl2tpd restart
 
@@ -561,27 +570,27 @@ EOF
 
 }
 
-yum_install(){
+yum_install() {
 
     config_install
 
     cp -pf /etc/sysctl.conf /etc/sysctl.conf.bak
 
-    echo "# Added by L2TP VPN" >> /etc/sysctl.conf
-    echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
-    echo "net.ipv4.tcp_syncookies=1" >> /etc/sysctl.conf
-    echo "net.ipv4.icmp_echo_ignore_broadcasts=1" >> /etc/sysctl.conf
-    echo "net.ipv4.icmp_ignore_bogus_error_responses=1" >> /etc/sysctl.conf
+    echo "# Added by L2TP VPN" >>/etc/sysctl.conf
+    echo "net.ipv4.ip_forward=1" >>/etc/sysctl.conf
+    echo "net.ipv4.tcp_syncookies=1" >>/etc/sysctl.conf
+    echo "net.ipv4.icmp_echo_ignore_broadcasts=1" >>/etc/sysctl.conf
+    echo "net.ipv4.icmp_ignore_bogus_error_responses=1" >>/etc/sysctl.conf
 
-    for each in `ls /proc/sys/net/ipv4/conf/`; do
-        echo "net.ipv4.conf.${each}.accept_source_route=0" >> /etc/sysctl.conf
-        echo "net.ipv4.conf.${each}.accept_redirects=0" >> /etc/sysctl.conf
-        echo "net.ipv4.conf.${each}.send_redirects=0" >> /etc/sysctl.conf
-        echo "net.ipv4.conf.${each}.rp_filter=0" >> /etc/sysctl.conf
+    for each in $(ls /proc/sys/net/ipv4/conf/); do
+        echo "net.ipv4.conf.${each}.accept_source_route=0" >>/etc/sysctl.conf
+        echo "net.ipv4.conf.${each}.accept_redirects=0" >>/etc/sysctl.conf
+        echo "net.ipv4.conf.${each}.send_redirects=0" >>/etc/sysctl.conf
+        echo "net.ipv4.conf.${each}.rp_filter=0" >>/etc/sysctl.conf
     done
     sysctl -p
 
-    cat > /etc/firewalld/services/xl2tpd.xml<<EOF
+    cat >/etc/firewalld/services/xl2tpd.xml <<EOF
 <?xml version="1.0" encoding="utf-8"?>
 <service>
   <short>xl2tpd</short>
@@ -596,7 +605,7 @@ EOF
     systemctl enable xl2tpd
     systemctl enable firewalld
 
-    systemctl status firewalld > /dev/null 2>&1
+    systemctl status firewalld >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         firewall-cmd --reload
         echo "Checking firewalld status..."
@@ -635,12 +644,12 @@ EOF
 
 }
 
-finally(){
+finally() {
 
     cd ${cur_dir}
     rm -fr ${cur_dir}/l2tp
     # create l2tp command
-    cp -f ${cur_dir}/`basename $0` /usr/bin/l2tp
+    cp -f ${cur_dir}/$(basename $0) /usr/bin/l2tp
 
     echo "Please wait a moment..."
     sleep 5
@@ -671,8 +680,7 @@ finally(){
     echo
 }
 
-
-l2tp(){
+l2tp() {
     clear
     echo
     echo "###############################################################"
@@ -692,8 +700,8 @@ l2tp(){
     finally
 }
 
-list_users(){
-    if [ ! -f /etc/ppp/chap-secrets ];then
+list_users() {
+    if [ ! -f /etc/ppp/chap-secrets ]; then
         echo "Error: /etc/ppp/chap-secrets file not found."
         exit 1
     fi
@@ -704,38 +712,36 @@ list_users(){
     printf ${line}
 }
 
-add_user(){
-    while :
-    do
+add_user() {
+    while :; do
         read -p "Please input your Username:" user
         if [ -z ${user} ]; then
             echo "Username can not be empty"
         else
-            grep -w "${user}" /etc/ppp/chap-secrets > /dev/null 2>&1
-            if [ $? -eq 0 ];then
+            grep -w "${user}" /etc/ppp/chap-secrets >/dev/null 2>&1
+            if [ $? -eq 0 ]; then
                 echo "Username (${user}) already exists. Please re-enter your username."
             else
                 break
             fi
         fi
     done
-    pass=`rand`
+    pass=$(rand)
     echo "Please input ${user}'s password:"
     read -p "(Default Password: ${pass}):" tmppass
     [ ! -z ${tmppass} ] && pass=${tmppass}
-    echo "${user}    l2tpd    ${pass}       *" >> /etc/ppp/chap-secrets
+    echo "${user}    l2tpd    ${pass}       *" >>/etc/ppp/chap-secrets
     echo "Username (${user}) add completed."
 }
 
-del_user(){
-    while :
-    do
+del_user() {
+    while :; do
         read -p "Please input Username you want to delete it:" user
         if [ -z ${user} ]; then
             echo "Username can not be empty"
         else
             grep -w "${user}" /etc/ppp/chap-secrets >/dev/null 2>&1
-            if [ $? -eq 0 ];then
+            if [ $? -eq 0 ]; then
                 break
             else
                 echo "Username (${user}) is not exists. Please re-enter your username."
@@ -746,60 +752,59 @@ del_user(){
     echo "Username (${user}) delete completed."
 }
 
-mod_user(){
-    while :
-    do
+mod_user() {
+    while :; do
         read -p "Please input Username you want to change password:" user
         if [ -z ${user} ]; then
             echo "Username can not be empty"
         else
             grep -w "${user}" /etc/ppp/chap-secrets >/dev/null 2>&1
-            if [ $? -eq 0 ];then
+            if [ $? -eq 0 ]; then
                 break
             else
                 echo "Username (${user}) is not exists. Please re-enter your username."
             fi
         fi
     done
-    pass=`rand`
+    pass=$(rand)
     echo "Please input ${user}'s new password:"
     read -p "(Default Password: ${pass}):" tmppass
     [ ! -z ${tmppass} ] && pass=${tmppass}
     sed -i "/^\<${user}\>/d" /etc/ppp/chap-secrets
-    echo "${user}    l2tpd    ${pass}       *" >> /etc/ppp/chap-secrets
+    echo "${user}    l2tpd    ${pass}       *" >>/etc/ppp/chap-secrets
     echo "Username ${user}'s password has been changed."
 }
 
 # Main process
 action=$1
-if [ -z ${action} ] && [ "`basename $0`" != "l2tp" ]; then
+if [ -z ${action} ] && [ "$(basename $0)" != "l2tp" ]; then
     action=install
 fi
 
 case ${action} in
-    install)
-        l2tp 2>&1 | tee ${cur_dir}/l2tp.log
-        ;;
-    -l|--list)
-        list_users
-        ;;
-    -a|--add)
-        add_user
-        ;;
-    -d|--del)
-        del_user
-        ;;
-    -m|--mod)
-        mod_user
-        ;;
-    -h|--help)
-        echo "Usage: `basename $0` -l,--list   List all users"
-        echo "       `basename $0` -a,--add    Add a user"
-        echo "       `basename $0` -d,--del    Delete a user"
-        echo "       `basename $0` -m,--mod    Modify a user password"
-        echo "       `basename $0` -h,--help   Print this help information"
-        ;;
-    *)
-        echo "Usage: `basename $0` [-l,--list|-a,--add|-d,--del|-m,--mod|-h,--help]" && exit
-        ;;
+install)
+    l2tp 2>&1 | tee ${cur_dir}/l2tp.log
+    ;;
+-l | --list)
+    list_users
+    ;;
+-a | --add)
+    add_user
+    ;;
+-d | --del)
+    del_user
+    ;;
+-m | --mod)
+    mod_user
+    ;;
+-h | --help)
+    echo "Usage: $(basename $0) -l,--list   List all users"
+    echo "       $(basename $0) -a,--add    Add a user"
+    echo "       $(basename $0) -d,--del    Delete a user"
+    echo "       $(basename $0) -m,--mod    Modify a user password"
+    echo "       $(basename $0) -h,--help   Print this help information"
+    ;;
+*)
+    echo "Usage: $(basename $0) [-l,--list|-a,--add|-d,--del|-m,--mod|-h,--help]" && exit
+    ;;
 esac

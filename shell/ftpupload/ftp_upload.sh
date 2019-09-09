@@ -14,7 +14,7 @@
 ########## START OF CONFIG ##########
 
 # Local directory (current folder)
-LOCALDIR=$( pwd )
+LOCALDIR=$(pwd)
 
 # File to log the outcome of backups
 LOGFILE="/var/log/ftp_upload.log"
@@ -38,10 +38,9 @@ FTP_DIR=""
 
 ########## END OF CONFIG ##########
 
-
 log() {
     echo "$(date "+%Y-%m-%d %H:%M:%S")" "$1"
-    echo -e "$(date "+%Y-%m-%d %H:%M:%S")" "$1" >> ${LOGFILE}
+    echo -e "$(date "+%Y-%m-%d %H:%M:%S")" "$1" >>${LOGFILE}
 }
 
 # Check ftp command
@@ -61,13 +60,12 @@ ftp_upload() {
     [ -z ${FTP_PASS} ] && log "Error: FTP_PASS can not be empty!" && exit 1
     [ -z ${FTP_DIR} ] && log "Error: FTP_DIR can not be empty!" && exit 1
 
-    echo "$@" | grep "*" > /dev/null 2>&1
+    echo "$@" | grep "*" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        ls $@ > /dev/null 2>&1
+        ls $@ >/dev/null 2>&1
         [ $? -ne 0 ] && log "Error: [$@] file(s) not exists!" && exit 1
     else
-        for f in $@
-        do
+        for f in $@; do
             [ ! -f ${f} ] && log "Error: [${f}] not exists!" && exit 1
         done
     fi
@@ -75,11 +73,10 @@ ftp_upload() {
     local FTP_OUT_FILE=("$@")
 
     log "Tranferring file(s) list below to FTP server:"
-    for file in ${FTP_OUT_FILE[@]}
-    do
+    for file in ${FTP_OUT_FILE[@]}; do
         log "$file"
     done
-    ftp -in ${FTP_HOST} 2>&1 >> ${LOGFILE} <<EOF
+    ftp -in ${FTP_HOST} 2>&1 >>${LOGFILE} <<EOF
 user $FTP_USER $FTP_PASS
 binary
 lcd $LOCALDIR
@@ -90,7 +87,6 @@ EOF
     log "Tranfer to FTP server completed"
 }
 
-
 # Main progress
 STARTTIME=$(date +%s)
 
@@ -99,7 +95,6 @@ STARTTIME=$(date +%s)
 check_command
 
 ftp_upload "$@"
-
 
 ENDTIME=$(date +%s)
 DURATION=$((ENDTIME - STARTTIME))

@@ -40,11 +40,11 @@ fi
 
 get_latest_version() {
 
-    latest_version=$(wget -qO- http://kernel.ubuntu.com/~kernel-ppa/mainline/ | awk -F'\"v' '/v[4-9]./{print $2}' | cut -d/ -f1 | grep -v -  | sort -V | tail -1)
+    latest_version=$(wget -qO- http://kernel.ubuntu.com/~kernel-ppa/mainline/ | awk -F'\"v' '/v[4-9]./{print $2}' | cut -d/ -f1 | grep -v - | sort -V | tail -1)
 
     [ -z ${latest_version} ] && return 1
 
-    if [[ `getconf WORD_BIT` == "32" && `getconf LONG_BIT` == "64" ]]; then
+    if [[ $(getconf WORD_BIT) == "32" && $(getconf LONG_BIT) == "64" ]]; then
         deb_name=$(wget -qO- http://kernel.ubuntu.com/~kernel-ppa/mainline/v${latest_version}/ | grep "linux-image" | grep "generic" | awk -F'\">' '/amd64.deb/{print $2}' | cut -d'<' -f1 | head -1)
         deb_kernel_url="http://kernel.ubuntu.com/~kernel-ppa/mainline/v${latest_version}/${deb_name}"
         deb_kernel_name="linux-image-${latest_version}-amd64.deb"
@@ -63,16 +63,16 @@ get_opsy() {
     [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
 }
 
-opsy=$( get_opsy )
-arch=$( uname -m )
-lbit=$( getconf LONG_BIT )
-kern=$( uname -r )
+opsy=$(get_opsy)
+arch=$(uname -m)
+lbit=$(getconf LONG_BIT)
+kern=$(uname -r)
 
 get_char() {
-    SAVEDSTTY=`stty -g`
+    SAVEDSTTY=$(stty -g)
     stty -echo
     stty cbreak
-    dd if=/dev/tty bs=1 count=1 2> /dev/null
+    dd if=/dev/tty bs=1 count=1 2>/dev/null
     stty -raw
     stty echo
     stty $SAVEDSTTY
@@ -80,9 +80,9 @@ get_char() {
 
 getversion() {
     if [[ -s /etc/redhat-release ]]; then
-        grep -oE  "[0-9.]+" /etc/redhat-release
+        grep -oE "[0-9.]+" /etc/redhat-release
     else
-        grep -oE  "[0-9.]+" /etc/issue
+        grep -oE "[0-9.]+" /etc/issue
     fi
 }
 
@@ -110,7 +110,7 @@ check_bbr_status() {
     fi
 }
 
-version_ge(){
+version_ge() {
     test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"
 }
 
@@ -147,8 +147,8 @@ install_elrepo() {
 sysctl_config() {
     sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
     sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
-    echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
-    echo "net.ipv4.tcp_congestion_control = bbr" >> /etc/sysctl.conf
+    echo "net.core.default_qdisc = fq" >>/etc/sysctl.conf
+    echo "net.ipv4.tcp_congestion_control = bbr" >>/etc/sysctl.conf
     sysctl -p >/dev/null 2>&1
 }
 
@@ -228,7 +228,6 @@ install_bbr() {
     reboot_os
 }
 
-
 clear
 echo "---------- System Information ----------"
 echo " OS      : $opsy"
@@ -241,6 +240,6 @@ echo " URL: https://teddysun.com/489.html"
 echo "----------------------------------------"
 echo
 echo "Press any key to start...or Press Ctrl+C to cancel"
-char=`get_char`
+char=$(get_char)
 
 install_bbr 2>&1 | tee ${cur_dir}/install_bbr.log

@@ -9,14 +9,14 @@ BACKUP_DIR="/home/backups"
 USER="auto"
 PASS=""
 
-if [ -f "$LIST_FILE" ];then
+if [ -f "$LIST_FILE" ]; then
     source "$LIST_FILE"
 else
     echo "file list not exist."
     exit -1
 fi
 
-if [ ! -d "$BACKUP_DIR" ];then
+if [ ! -d "$BACKUP_DIR" ]; then
     mkdir "$BACKUP_DIR"
 fi
 
@@ -28,9 +28,8 @@ fi
 #    fi
 #done
 
-for dir in "${dirs[@]}"
-do
-    if [ -f "$BACKUP_DIR/$dir.tar.gz" ];then
+for dir in "${dirs[@]}"; do
+    if [ -f "$BACKUP_DIR/$dir.tar.gz" ]; then
         rm "$BACKUP_DIR/$dir.tar.gz"
     fi
 
@@ -41,9 +40,9 @@ ftp_mkdir() {
     local r
     local a
     r="$@"
-    while [[ "$r" != "$a" ]] ; do
+    while [[ "$r" != "$a" ]]; do
         a=${r%%/*}
-        if [ -n "$a" ];then
+        if [ -n "$a" ]; then
             echo "mkdir $a"
             echo "cd $a"
         fi
@@ -55,25 +54,23 @@ ftp_put() {
     echo "cd /"
     ftp_mkdir "$BACKUP_DIR"
     echo "lcd $BACKUP_DIR"
-    for dir in "${dirs[@]}"
-    do
-        echo "$(date) --> backup: $dir" >> "$LOG_FILE"
+    for dir in "${dirs[@]}"; do
+        echo "$(date) --> backup: $dir" >>"$LOG_FILE"
         echo "put $dir.tar.gz"
     done
 
-    for file in "${files[@]}"
-    do
-        echo "$(date) --> backup: $file" >> "$LOG_FILE"
+    for file in "${files[@]}"; do
+        echo "$(date) --> backup: $file" >>"$LOG_FILE"
         LCD="$(dirname $file)"
         FILE="$(basename $file)"
         echo "cd /"
         ftp_mkdir "$LCD"
         echo "lcd $LCD"
-#        if [[ "$file" == *.img ]];then
-#            echo "put $FILE.qcow2"
-#        else
-            echo "put $FILE"
-#        fi
+        #        if [[ "$file" == *.img ]];then
+        #            echo "put $FILE.qcow2"
+        #        else
+        echo "put $FILE"
+        #        fi
     done
 }
 
@@ -86,4 +83,3 @@ quit
 END_FTP
 
 echo "$(date) --> done"
-
