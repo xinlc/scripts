@@ -36,7 +36,7 @@ fi
 # 通过下面命令将脚步加入系统的计划任务
 # crontab -e
 # 分钟 小时 天  月 星期几
-# 每天12点12分执行备份
+# 每天01点10分执行备份
 # crontab -e
-# 12 12 * * * /usr/bin/bash /home/hst/bakmysql.sh
-# 也许需要重启crontab  启用命令：/sbin/service crond restart
+# 10 01 * * * /usr/bin/bash /home/leo/bakmysql.sh
+# crontab 会自动加在配置，你也可以重启crontab  启用命令：/sbin/service crond restart
