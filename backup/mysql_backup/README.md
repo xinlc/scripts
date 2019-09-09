@@ -125,15 +125,13 @@ crontab -u
 # 下午6点到早上6点，每隔15分钟执行一次脚本
 0,15,30,45 18-06 * * * /bin/bash /home/script.sh > /dev/null 2>&1
 # 每两小时，重启一次服务
-* */2 * * * /etc/init.d/service restart
+0 */2 * * * /etc/init.d/service restart
 # 每天凌晨过一分钟。这是一个恰当的进行备份的时间，因为此时系统负载不大。
 1 0 * * * /root/bin/back.sh
 # 每个工作日(Mon – Fri) 11:59 p.m 都进行备份作业。
 59 11 * * 1,2,3,4,5 /root/bin/test.sh
-下面例子与上面的例子效果一样：
+# 下面例子与上面的例子效果一样：
 59 11 * * 1-5 /root/bin/test.sh
-# 每5分钟运行一次命令
-*/5 * * * * /root/bin/test.sh
 
 # 在 12:01 a.m 运行，即每天凌晨过一分钟。这是一个恰当的进行备份的时间，因为此时系统负载不大。
 1 0 * * * /root/bin/backup.sh
@@ -141,6 +139,6 @@ crontab -u
 # 每5分钟运行一次命令
 */5 * * * * /root/bin/check-status.sh
 
-# 每天12点12分执行备份
-12 12 * * * /usr/bin/bash /home/leo/bakmysql.sh
+# 每天01点10分执行备份
+10 01 * * * /usr/bin/bash /home/leo/bakmysql.sh
 ```
