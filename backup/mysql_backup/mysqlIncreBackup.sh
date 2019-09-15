@@ -39,3 +39,10 @@ echo $(date +"%Y年%m月%d日 %H:%M:%S") $Next Bakup succ! >>$logFile
 
 # 使用 python 上传备份文件到 私有云
 #python /use/local/upload.py $backUpFolder $backUpFileName
+
+# 通过binlog恢复数据
+# 语法如下
+# mysqlbinlog mysql-bin.0000xx | mysql -u用户名 -p密码 数据库名
+
+# 比如我们要把所有的操作都恢复（不包括我们的删除，我们知道删除是在755点上）：
+# mysqlbinlog mysql-bin.000009 --start-position 154 --stop-position 755 | mysql -uroot -p mytest
