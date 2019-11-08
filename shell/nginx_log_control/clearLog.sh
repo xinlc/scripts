@@ -6,8 +6,9 @@
 ## Last update 2019/11/8 Leo <xinlichao2016@gmail.com>
 ##
 
-LOGS_PATH=/usr/local/nginx/logs/history
-CUR_LOGS_PATH=/usr/local/nginx/logs
+LOGS_PATH=/home/leo/docker-data/nginx-router/logs
+CUR_LOGS_PATH=/home/leo/docker-data/nginx-router/logs
+DOCKER_COMPOSE_FILE=/home/leo/docker/nginx-router/docker-compose.yml
 YESTERDAY=$(date -d "yesterday" +%Y-%m-%d)
 
 # 按天切割日志
@@ -18,7 +19,7 @@ mv ${CUR_LOGS_PATH}/error.log ${LOGS_PATH}/old_error_${YESTERDAY}.log
 # 向 nginx 主进程发送USR1信号，重新打开日志文件，否则会继续往mv后的文件写数据的。原因在于：linux系统中，内核是根据文件描述符来找文件的。如果不这样操作导致日志切割失败。
 # docker 执行
 # bash -c 执行字符串命令。注意是 ‘’ 不是 “”, 双引号$()会在当前主机环境执行
-docker-compose exec nginx-router bash -c 'kill -USR1 $(cat /var/run/nginx.pid)'
+docker-compose -f ${DOCKER_COMPOSE_FILE} exec nginx-router bash -c 'kill -USR1 $(cat /var/run/nginx.pid)'
 
 # kill -USR1 $(cat /usr/local/nginx/logs/nginx.pid)
 # kill -USR1 $(ps axu | grep "nginx: master process" | grep -v grep | awk '{print $2}')
