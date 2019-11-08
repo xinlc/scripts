@@ -6,7 +6,7 @@
 ## Last update 2019/11/8 Leo <xinlichao2016@gmail.com>
 ##
 
-LOGS_PATH=/home/leo/docker-data/nginx-router/logs
+LOGS_PATH=/home/leo/docker-data/nginx-router/logs/history
 CUR_LOGS_PATH=/home/leo/docker-data/nginx-router/logs
 DOCKER_COMPOSE_FILE=/home/leo/docker/nginx-router/docker-compose.yml
 YESTERDAY=$(date -d "yesterday" +%Y-%m-%d)
