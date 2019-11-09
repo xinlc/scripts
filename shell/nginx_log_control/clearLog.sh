@@ -6,6 +6,12 @@
 ## Last update 2019/11/8 Leo <xinlichao2016@gmail.com>
 ##
 
+# 查看 docker-compose 在哪
+# whereis docker-compose
+# /usr/local/bin
+# 为 crontab 添加环境变量，执行 docker-compse
+export PATH=/usr/local/bin:$PATH
+
 LOGS_PATH=/home/leo/docker-data/nginx-router/logs/history
 CUR_LOGS_PATH=/home/leo/docker-data/nginx-router/logs
 DOCKER_COMPOSE_FILE=/home/leo/docker/nginx-router/docker-compose.yml
@@ -19,7 +25,7 @@ mv ${CUR_LOGS_PATH}/error.log ${LOGS_PATH}/old_error_${YESTERDAY}.log
 # 向 nginx 主进程发送USR1信号，重新打开日志文件，否则会继续往mv后的文件写数据的。原因在于：linux系统中，内核是根据文件描述符来找文件的。如果不这样操作导致日志切割失败。
 # docker 执行
 # bash -c 执行字符串命令。注意是 ‘’ 不是 “”, 双引号$()会在当前主机环境执行
-docker-compose -f ${DOCKER_COMPOSE_FILE} exec nginx-router bash -c 'kill -USR1 $(cat /var/run/nginx.pid)'
+docker-compose -f ${DOCKER_COMPOSE_FILE} exec -d nginx-router bash -c 'kill -USR1 $(cat /var/run/nginx.pid)'
 
 # kill -USR1 $(cat /usr/local/nginx/logs/nginx.pid)
 # kill -USR1 $(ps axu | grep "nginx: master process" | grep -v grep | awk '{print $2}')
@@ -41,7 +47,6 @@ find ${LOGS_PATH} -mtime +7 -type f -name \*.log | xargs rm -f
 # 分钟 小时 天  月 星期几
 # 每天01点10分执行
 # crontab -e
-# 10 01 * * * /usr/bin/bash /home/leo/clearLog.sh
 # 10 01 * * * /usr/bin/bash /home/leo/clearLog.sh >> /dev/null 2>&1
 # crontab 会自动加在配置，你也可以重启crontab  启用命令：/sbin/service crond restart
 
