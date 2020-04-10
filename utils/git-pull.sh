@@ -10,7 +10,9 @@ baseDir=$(pwd)
 #ls | while read file
 Dirs=$(ls -l | grep '^d' | awk '{print $9}')
 for file in $Dirs; do
-  echo $file
+  echo 
+  echo "git pull $file ...................."
+  echo 
   if [ -d $file ]; then
     cd $file
     git pull
