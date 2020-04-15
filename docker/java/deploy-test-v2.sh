@@ -188,7 +188,7 @@ run() {
     [ -z "$project_id" ] && project_id=1
 
     case $project_id in
-    [1-9])
+    [1-9]|1[0-9])
       echo
       echo -e "$yellow 已选择 $cyan${project_names[$project_id - 1]}$none"
       break
