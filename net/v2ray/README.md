@@ -2,7 +2,10 @@
 ## 第一种
 
 ```bash
-  bash <(curl -s -L https://git.io/v2ray.sh)
+bash <(curl -s -L https://git.io/v2ray.sh)
+
+systemctl stop firewalld.service # 关防火墙
+systemctl disable firewalld.service # 禁止自启
 ```
 
 ## 第二种
