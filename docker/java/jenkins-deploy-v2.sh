@@ -16,19 +16,6 @@ magenta="\033[95m"
 cyan="\033[96m"
 none="\033[0m"
 
-# 项目名
-project_names=(
-  all
-  project-purchaser
-  project-supplier
-  project-audit
-  project-job
-  auth-svc
-  gateway
-  project-crm
-	order-svc
-)
-
 # 项目相对路径
 project_path=(
   all
@@ -90,8 +77,8 @@ pause() {
 }
 
 show_projects() {
-  for ((i = 1; i <= ${#project_names[*]}; i++)); do
-    Item="${project_names[$i - 1]}"
+  for ((i = 1; i <= ${#register_names[*]}; i++)); do
+    Item="${register_names[$i - 1]}"
     if [[ "$i" -le 9 ]]; then
       # echo
       echo -e "$yellow  $i. $none${Item}"
@@ -105,8 +92,8 @@ show_projects() {
 show_deploy_projects() {
   for ((i = 1; i <= ${#image_tags[*]} - 1; i++)); do
     ItemTag="${image_tags[$i]}"
-    ItemName="${project_names[$i]}"
-    echo -e "$cyan ${ItemName}-${ItemTag}$none"
+    ItemName="${register_names[$i]}"
+    echo -e "$cyan ${ItemName}:${ItemTag}$none"
   done
 }
 
@@ -117,7 +104,7 @@ show_confirm_deploy() {
   if test $project_id -eq 1; then
     show_deploy_projects
   else
-    echo -e "$cyan ${project_names[project_id - 1]}-${image_tags[$project_id - 1]}$none"
+    echo -e "$cyan ${register_names[project_id - 1]}:${image_tags[$project_id - 1]}$none"
   fi
   echo
   echo "=============================="
@@ -135,7 +122,7 @@ deploy() {
   if test $project_id -eq 1; then
     for ((i = 1; i <= ${#image_tags[*]} - 1; i++)); do
       ItemTag="${image_tags[$i]}"
-      ItemName="${project_names[$i]}"
+      ItemName="${register_names[$i]}"
       RegisterName="${register_names[$i]}"
 #      ProjectPath=${work_path}/${ItemName}
       ProjectPath=${work_path}/${project_path[$i]}
@@ -149,7 +136,7 @@ deploy() {
 
     # 部署选择的项目
     ItemTag="${image_tags[$project_id - 1]}"
-    ItemName="${project_names[project_id - 1]}"
+    ItemName="${register_names[project_id - 1]}"
     RegisterName="${register_names[project_id - 1]}"
 #    ProjectPath=${work_path}/${ItemName}
 		ProjectPath=${work_path}/${project_path[project_id - 1]}
@@ -168,7 +155,7 @@ run() {
   # clear
   echo
   while :; do
-    echo -e "请选择要部署的项目 [${magenta}1-${#project_names[*]}$none]"
+    echo -e "请选择要部署的项目 [${magenta}1-${#register_names[*]}$none]"
     echo
 
     # 显示所有项目
@@ -184,7 +171,7 @@ run() {
     case $project_id in
     [1-9])
       echo
-      echo -e "$yellow 已选择 $cyan${project_names[$project_id - 1]}$none"
+      echo -e "$yellow 已选择 $cyan${register_names[$project_id - 1]}$none"
       break
       ;;
     *)
