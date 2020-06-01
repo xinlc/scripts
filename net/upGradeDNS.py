@@ -2,6 +2,11 @@
 # -*- coding:utf-8 -*-
 
 # 更新内网域名
+## crontab -e
+# 每五分钟检测一次
+# */5 * * * * python /home/dns/upGradeDNS.py >> /home/dns/upGradeDNS.log 2>&1
+##
+
 import os
 from aliyunsdkcore import client
 from aliyunsdkcore.request import RpcRequest
@@ -16,8 +21,10 @@ def getip():
 def getDNSrecords():
     global product,version,accesskey,accesspasswd
     clt = client.AcsClient( accesskey, accesspasswd, 'cn-hangzhou')
-    request=RpcRequest('Alidns', '2015-01-09', 'DescribeDomainRecords')
-    request.add_query_param("DomainName","wiki.leo.com")
+    # request=RpcRequest('Alidns', '2015-01-09', 'DescribeDomainRecords')
+    # request.add_query_param("DomainName","wiki.leo.com")
+    request=RpcRequest('Alidns', '2015-01-09', 'DescribeSubDomainRecords')
+    request.add_query_param("SubDomain","wiki.zhyxy.com")
     request.set_accept_format('json')
     response=clt.do_action(request)
     return eval( response.replace('false','0') )
