@@ -24,7 +24,7 @@ def getDNSrecords():
     # request=RpcRequest('Alidns', '2015-01-09', 'DescribeDomainRecords')
     # request.add_query_param("DomainName","wiki.leo.com")
     request=RpcRequest('Alidns', '2015-01-09', 'DescribeSubDomainRecords')
-    request.add_query_param("SubDomain","wiki.zhyxy.com")
+    request.add_query_param("SubDomain","intranet.xxx.com")
     request.set_accept_format('json')
     response=clt.do_action(request)
     return eval( response.replace('false','0') )
