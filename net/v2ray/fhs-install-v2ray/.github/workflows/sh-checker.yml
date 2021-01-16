@@ -1,0 +1,49 @@
+name: static analysis for shell scripts using shellcheck and shfmt
+on:
+  push:
+    branches:
+      - master
+      - develop
+    paths-ignore:
+      - "**/LICENSE"
+      - "**/README.md"
+      - "**/README.zh-Hans-CN.md"
+  pull_request:
+    branches:
+      - master
+      - develop
+jobs:
+  sh-checker:
+    runs-on: ubuntu-16.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run the sh-checker
+        uses: luizm/action-sh-checker@v0.1.8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHFMT_OPTS: -i 2 -ci -sr
+        with:
+          sh_checker_comment: true
+          sh_checker_exclude: "LICENSE README.md README.zh-Hans-CN.md"
+  filed-test:
+    runs-on: ubuntu-16.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Filed-test on Ubuntu 16.04
+        run: |
+          sudo bash install-release.sh
+          sudo bash install-release.sh --check
+          sudo bash install-dat-release.sh
+      - name: Filed-test on CentOS
+        uses: docker://centos:centos8.1.1911
+        with:
+          args: bash install-release.sh
+      - name: Filed-test on OpenSUSE
+        uses: docker://opensuse/archive:42.1
+        with:
+          args: bash install-release.sh
+      - name: Filed-test on Arch Linux
+        uses: docker://archlinux:latest
+        with:
+          args: bash install-release.sh

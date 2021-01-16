@@ -42,7 +42,21 @@ date -R
 date --set="2018-11-07 13:29:10"
 ```
 
-## mac 客户端
+## 第三种
+
+vmess+ws+tls
+
+```bash
+# 1. 注册域名 https://www.namesilo.com/ 这个商家支持域名隐私保护，注册域名时注意要开启隐私保护：Privacy Setting -> WHOIS Privacy
+
+# 2. 用 https://www.cloudflare.com 接管域名解析，托管到CDN的目的是让域名解析生效时间更快（30秒左右，不使用CDN可能要十多分钟）
+
+# 3. https://github.com/wulabing/V2Ray_ws-tls_bash_onekey
+```
+
+## 客户端
+
+### mac 客户端
 
 ```bash
 https://github.com/Cenmrev/V2RayX
@@ -50,16 +64,19 @@ brew cask install v2rayx
 
 https://github.com/yanue/V2rayU
 brew cask install v2rayu
+
+https://github.com/Qv2ray/Qv2ray
 ```
 
-## win 客户端
+### win 客户端
 
 ```bash
+https://github.com/Qv2ray/Qv2ray
 https://github.com/Cenmrev/V2RayW
 https://github.com/2dust/v2rayN
 ```
 
-## android 客户端
+### android 客户端
 
 ```bash
 https://github.com/2dust/v2rayNG
@@ -77,5 +94,6 @@ Snapcraft: snapcraft.io/v2ray-core
 
 ## 参考
 
-[v2ray](https://www.v2ray.com)
-[一个 V2Ray 配置文件模板收集仓库](https://github.com/KiriKira/vTemplate)
+- [v2ray](https://www.v2ray.com)
+- [一个 V2Ray 配置文件模板收集仓库](https://github.com/KiriKira/vTemplate)
+- [v2rayssr 综合网](https://www.v2rayssr.com)
