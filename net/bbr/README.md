@@ -14,3 +14,9 @@ wget --no-check-certificate https://github.com/teddysun/across/raw/master/bbr.sh
 uname -r
 ```
 查看内核版本，显示为最新版就表示 OK 了
+
+# 最新一键BBR脚本
+
+```bash
+wget -N --no-check-certificate "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh
+```
