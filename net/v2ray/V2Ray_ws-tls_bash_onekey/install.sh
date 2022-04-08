@@ -29,7 +29,7 @@ OK="${Green}[OK]${Font}"
 Error="${Red}[错误]${Font}"
 
 # 版本
-shell_version="1.1.5.7"
+shell_version="1.1.9.0"
 shell_mode="None"
 github_branch="master"
 version_cmp="/tmp/version_cmp.tmp"
@@ -41,7 +41,8 @@ nginx_dir="/etc/nginx"
 web_dir="/home/wwwroot"
 nginx_openssl_src="/usr/local/src"
 v2ray_bin_dir_old="/usr/bin/v2ray"
-v2ray_bin_dir="/usr/local/bin"
+v2ray_bin_dir="/usr/local/bin/v2ray"
+v2ctl_bin_dir="/usr/local/bin/v2ctl"
 v2ray_info_file="$HOME/v2ray_info.inf"
 v2ray_qr_config_file="/usr/local/vmess_qr.json"
 nginx_systemd_file="/etc/systemd/system/nginx.service"
@@ -50,8 +51,8 @@ v2ray_access_log="/var/log/v2ray/access.log"
 v2ray_error_log="/var/log/v2ray/error.log"
 amce_sh_file="/root/.acme.sh/acme.sh"
 ssl_update_file="/usr/bin/ssl_update.sh"
-nginx_version="1.18.0"
-openssl_version="1.1.1g"
+nginx_version="1.20.1"
+openssl_version="1.1.1k"
 jemalloc_version="5.2.1"
 old_config_status="off"
 # v2ray_plugin_version="$(wget -qO- "https://github.com/shadowsocks/v2ray-plugin/tags" | grep -E "/shadowsocks/v2ray-plugin/releases/tag/" | head -1 | sed -r 's/.*tag\/v(.+)\">.*/\1/')"
@@ -83,6 +84,10 @@ check_system() {
     elif [[ "${ID}" == "ubuntu" && $(echo "${VERSION_ID}" | cut -d '.' -f1) -ge 16 ]]; then
         echo -e "${OK} ${GreenBG} 当前系统为 Ubuntu ${VERSION_ID} ${UBUNTU_CODENAME} ${Font}"
         INS="apt"
+        rm /var/lib/dpkg/lock
+        dpkg --configure -a
+        rm /var/lib/apt/lists/lock
+        rm /var/cache/apt/archives/lock
         $INS update
     else
         echo -e "${Error} ${RedBG} 当前系统为 ${ID} ${VERSION_ID} 不在支持的系统列表内，安装中断 ${Font}"
@@ -218,6 +223,8 @@ dependency_install() {
         systemctl start haveged && systemctl enable haveged
         #       judge "haveged 启动"
     fi
+
+    mkdir -p /usr/local/bin >/dev/null 2>&1
 }
 basic_optimization() {
     # 最大文件打开数
@@ -237,8 +244,8 @@ port_alterid_set() {
     if [[ "on" != "$old_config_status" ]]; then
         read -rp "请输入连接端口（default:443）:" port
         [[ -z ${port} ]] && port="443"
-        read -rp "请输入alterID（default:2 仅允许填数字）:" alterID
-        [[ -z ${alterID} ]] && alterID="2"
+        read -rp "请输入alterID（default:0 仅允许填数字）:" alterID
+        [[ -z ${alterID} ]] && alterID="0"
     fi
 }
 modify_path() {
@@ -381,6 +388,7 @@ nginx_install() {
 
     ./configure --prefix="${nginx_dir}" \
         --with-http_ssl_module \
+        --with-http_sub_module \
         --with-http_gzip_static_module \
         --with-http_stub_status_module \
         --with-pcre \
@@ -426,7 +434,7 @@ domain_check() {
     read -rp "请输入你的域名信息(eg:www.wulabing.com):" domain
     domain_ip=$(ping "${domain}" -c 1 | sed '1{s/[^(]*(//;s/).*//;q}')
     echo -e "${OK} ${GreenBG} 正在获取 公网ip 信息，请耐心等待 ${Font}"
-    local_ip=$(curl https://api-ipv4.ip.sb/ip)
+    local_ip=$(curl -4L https://api64.ipify.org)
     echo -e "域名dns解析IP：${domain_ip}"
     echo -e "本机IP: ${local_ip}"
     sleep 2
@@ -464,7 +472,8 @@ port_exist_check() {
     fi
 }
 acme() {
-    if "$HOME"/.acme.sh/acme.sh --issue -d "${domain}" --standalone -k ec-256 --force --test; then
+    "$HOME"/.acme.sh/acme.sh --set-default-ca --server letsencrypt
+    if "$HOME"/.acme.sh/acme.sh --issue --insecure -d "${domain}" --standalone -k ec-256 --force --test; then
         echo -e "${OK} ${GreenBG} SSL 证书测试签发成功，开始正式签发 ${Font}"
         rm -rf "$HOME/.acme.sh/${domain}_ecc"
         sleep 2
@@ -474,7 +483,7 @@ acme() {
         exit 1
     fi
 
-    if "$HOME"/.acme.sh/acme.sh --issue -d "${domain}" --standalone -k ec-256 --force; then
+    if "$HOME"/.acme.sh/acme.sh --issue --insecure -d "${domain}" --standalone -k ec-256 --force; then
         echo -e "${OK} ${GreenBG} SSL 证书生成成功 ${Font}"
         sleep 2
         mkdir /data
@@ -545,6 +554,7 @@ nginx_conf_add() {
         location /ray/
         {
         proxy_redirect off;
+        proxy_read_timeout 1200s;
         proxy_pass http://127.0.0.1:10000;
         proxy_http_version 1.1;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -817,9 +827,9 @@ mtproxy_sh() {
 
 uninstall_all() {
     stop_process_systemd
-    [[ -f $nginx_systemd_file ]] && rm -f $nginx_systemd_file
     [[ -f $v2ray_systemd_file ]] && rm -f $v2ray_systemd_file
-    [[ -d $v2ray_bin_dir ]] && rm -rf $v2ray_bin_dir
+    [[ -f $v2ray_bin_dir ]] && rm -f $v2ray_bin_dir
+    [[ -f $v2ctl_bin_dir ]] && rm -f $v2ctl_bin_dir
     [[ -d $v2ray_bin_dir_old ]] && rm -rf $v2ray_bin_dir_old
     if [[ -d $nginx_dir ]]; then
         echo -e "${OK} ${Green} 是否卸载 Nginx [Y/N]? ${Font}"
@@ -827,6 +837,7 @@ uninstall_all() {
         case $uninstall_nginx in
         [yY][eE][sS] | [yY])
             rm -rf $nginx_dir
+            rm -rf $nginx_systemd_file
             echo -e "${OK} ${Green} 已卸载 Nginx ${Font}"
             ;;
         *) ;;
@@ -835,8 +846,18 @@ uninstall_all() {
     fi
     [[ -d $v2ray_conf_dir ]] && rm -rf $v2ray_conf_dir
     [[ -d $web_dir ]] && rm -rf $web_dir
+    echo -e "${OK} ${Green} 是否卸载acme.sh及证书 [Y/N]? ${Font}"
+    read -r uninstall_acme
+    case $uninstall_acme in
+    [yY][eE][sS] | [yY])
+      /root/.acme.sh/acme.sh --uninstall
+      rm -rf /root/.acme.sh
+      rm -rf /data/*
+      ;;
+    *) ;;
+    esac
     systemctl daemon-reload
-    echo -e "${OK} ${GreenBG} 已卸载，SSL证书文件已保留 ${Font}"
+    echo -e "${OK} ${GreenBG} 已卸载 ${Font}"
 }
 delete_tls_key_and_crt() {
     [[ -f $HOME/.acme.sh/acme.sh ]] && /root/.acme.sh/acme.sh uninstall >/dev/null 2>&1
@@ -844,7 +865,7 @@ delete_tls_key_and_crt() {
     echo -e "${OK} ${GreenBG} 已清空证书遗留文件 ${Font}"
 }
 judge_mode() {
-    if [ -f $v2ray_bin_dir/v2ray ] || [ -f $v2ray_bin_dir_old/v2ray ]; then
+    if [ -f $v2ray_bin_dir ] || [ -f $v2ray_bin_dir_old/v2ray ]; then
         if grep -q "ws" $v2ray_qr_config_file; then
             shell_mode="ws"
         elif grep -q "h2" $v2ray_qr_config_file; then
@@ -946,6 +967,12 @@ list() {
         ;;
     esac
 }
+modify_camouflage_path() {
+    [[ -z ${camouflage_path} ]] && camouflage_path=1
+    sed -i "/location/c \\\tlocation \/${camouflage_path}\/" ${nginx_conf}          #Modify the camouflage path of the nginx configuration file
+    sed -i "/\"path\"/c \\\t  \"path\":\"\/${camouflage_path}\/\"" ${v2ray_conf}    #Modify the camouflage path of the v2ray configuration file
+    judge "V2ray camouflage path modified"
+}
 
 menu() {
     update_sh
@@ -964,6 +991,7 @@ menu() {
     echo -e "${Green}5.${Font}  变更 alterid"
     echo -e "${Green}6.${Font}  变更 port"
     echo -e "${Green}7.${Font}  变更 TLS 版本(仅ws+tls有效)"
+    echo -e "${Green}18.${Font}  变更伪装路径"
     echo -e "—————————————— 查看信息 ——————————————"
     echo -e "${Green}8.${Font}  查看 实时访问日志"
     echo -e "${Green}9.${Font}  查看 实时错误日志"
@@ -1042,6 +1070,7 @@ menu() {
         start_process_systemd
         ;;
     14)
+        source '/etc/os-release'
         uninstall_all
         ;;
     15)
@@ -1052,6 +1081,11 @@ menu() {
         ;;
     17)
         exit 0
+        ;;
+    18)
+        read -rp "请输入伪装路径(注意！不需要加斜杠 eg:ray):" camouflage_path
+        modify_camouflage_path
+        start_process_systemd
         ;;
     *)
         echo -e "${RedBG}请输入正确的数字${Font}"

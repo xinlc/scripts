@@ -3,6 +3,12 @@
 > 感谢 JetBrains 提供的非商业开源软件开发授权
 
 > Thanks for non-commercial open source development authorization by JetBrains
+### 关于 VMess MD5 认证信息 淘汰机制
+> 自 2022 年 1 月 1 日起，服务器端将默认禁用对于 MD5 认证信息 的兼容。任何使用 MD5 认证信息的客户端将无法连接到禁用 VMess MD5 认证信息的服务器端。
+
+受到影响的用户，我们强烈建议您重新安装，并设置alterid为0（默认值目前已经修改为0），不再使用 VMess MD5 认证机制
+如果您不想重新安装，您可以通过使用 https://github.com/KukiSa/VMess-fAEAD-disable 强制开启对于 MD5 认证机制的兼容
+
 ### Telegram 群组
 * telegram 交流群:https://t.me/wulabing_v2ray 
 * telegram 更新公告频道：https://t.me/wulabing_channel
@@ -16,6 +22,11 @@
 Vmess+websocket+TLS+Nginx+Website
 ```
 wget -N --no-check-certificate -q -O install.sh "https://raw.githubusercontent.com/wulabing/V2Ray_ws-tls_bash_onekey/master/install.sh" && chmod +x install.sh && bash install.sh
+```
+
+VLESS+websocket+TLS+Nginx+Website
+```
+wget -N --no-check-certificate -q -O install.sh "https://raw.githubusercontent.com/wulabing/V2Ray_ws-tls_bash_onekey/dev/install.sh" && chmod +x install.sh && bash install.sh
 ```
 
 ### 注意事项
@@ -87,12 +98,14 @@ Nginx 目录： `/etc/nginx`
 
 ### 捐赠
 
-目前支持通过 MugglePay 接受虚拟货币捐赠
+您可以使用我的 搬瓦工 AFF 购买 VPS
 
-𝒘𝒖𝒍𝒂𝒃𝒊𝒏𝒈 邀请您使用麻瓜宝，基于Telegram的电子钱包，匿名支付0手续费秒级到账。https://telegram.me/MugglePayBot?start=T3Y78AZ3
+https://bandwagonhost.com/aff.php?aff=63939
 
-您可以通过Telegram向我匿名捐赠：发送 /pay @wulabing xxx  到 @MugglePayBot 即可 默认货币为 USDT 
+您可以使用我的 justmysocks AFF 购买搬瓦工提供的代理
 
-如需要通过支付宝/微信捐赠，请Telegram私聊 @wulabing 感谢您的支持
+https://justmysocks.net/members/aff.php?aff=17621
+
+
 
 
