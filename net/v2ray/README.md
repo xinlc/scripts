@@ -72,6 +72,10 @@ https://github.com/yanue/V2rayU
 brew cask install v2rayu
 
 https://github.com/Qv2ray/Qv2ray
+
+https://github.com/Dr-Incognito/V2Ray-Desktop
+
+https://github.com/yichengchen/clashX
 ```
 
 ### win 客户端
