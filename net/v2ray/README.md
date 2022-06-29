@@ -44,7 +44,7 @@ date --set="2018-11-07 13:29:10"
 
 ## 第三种
 
-VLESS+gRPC+TLS
+Trojan+gRPC+TLS
 
 ```bash
 # 1. 注册域名 https://www.namesilo.com/ 这个商家支持域名隐私保护，注册域名时注意要开启隐私保护：Privacy Setting -> WHOIS Privacy
@@ -52,12 +52,19 @@ VLESS+gRPC+TLS
 # 2. 用 https://www.cloudflare.com 接管域名解析，托管到CDN的目的是让域名解析生效时间更快（30秒左右，不使用CDN可能要十多分钟）
 
 # 3. https://github.com/mack-a/v2ray-agent
+yum update && yum install -y wget curl
+
+wget -P /root -N --no-check-certificate "https://raw.githubusercontent.com/mack-a/v2ray-agent/master/install.sh" && chmod 700 /root/install.sh && /root/install.sh
   # nginx 可能会需要添加端口
     # semanage port -l | grep http_port_t
     # semanage port -a -t http_port_t -p tcp 31300
 
-# 4. https://github.com/yanue/V2rayU
+# 重新打开脚本
+vasma
 
+# 4. https://github.com/yichengchen/clashX
+
+# 参考：v2ray使用cloudflare中转流量，拯救被墙ip（https://vpsgongyi.com/p/2273/）
 ```
 
 ## 客户端
