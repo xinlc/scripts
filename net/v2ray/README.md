@@ -83,6 +83,7 @@ https://github.com/Qv2ray/Qv2ray
 https://github.com/Dr-Incognito/V2Ray-Desktop
 
 https://github.com/yichengchen/clashX
+https://github.com/Fndroid/clash_for_windows_pkg
 ```
 
 ### win 客户端
@@ -91,6 +92,7 @@ https://github.com/yichengchen/clashX
 https://github.com/Qv2ray/Qv2ray
 https://github.com/Cenmrev/V2RayW
 https://github.com/2dust/v2rayN
+https://github.com/Fndroid/clash_for_windows_pkg
 ```
 
 ### android 客户端
@@ -98,6 +100,7 @@ https://github.com/2dust/v2rayN
 ```bash
 https://github.com/2dust/v2rayNG
 https://apkpure.com/bifrostv/com.github.dawndiy.bifrostv
+https://github.com/Kr328/ClashForAndroid
 ```
 
 ## 下载 V2Ray
