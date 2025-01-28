@@ -796,6 +796,7 @@ rules:
   - IP-CIDR6,fe80::/10,DIRECT
 
   # 最终规则
+  - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
   # - MATCH,Proxy
   - MATCH,Final
